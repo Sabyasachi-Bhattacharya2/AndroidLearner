@@ -1,0 +1,86 @@
+const val TICKET_PRICE_10 = 10
+const val TICKET_PRICE_8 = 8
+fun main() {
+    // write your code here
+    println("Enter the number of rows:")
+    val row = readln().toInt()
+    println("Enter the number of seats in each row:")
+    val column = readln().toInt()
+    val numberOfSeats = row * column
+    var mutA = MutableList(row){ MutableList(column) {"S"} }
+    var numberOfTicketPurchased = 0
+    val totalIncome = if (row * column < 60) {
+            row * column * TICKET_PRICE_10
+        } else {
+            (row / 2 * TICKET_PRICE_10 * column) + ((row - row / 2) * TICKET_PRICE_8 * column)
+        }
+    var updater = 0
+    while(true) {
+        println("1. Show the seats\n" +
+                "2. Buy a ticket\n" +
+                "3. Statistics\n" +
+                "0. Exit")
+        when (readln().toInt()) {
+            1 -> showTheTicket(mutA)
+            2 -> {
+                do {
+                    val ticketValue = updateTheTicket(mutA, numberOfSeats, row)
+                    if (ticketValue != 0) {
+                        updater += ticketValue
+                        numberOfTicketPurchased++
+                        println("Ticket price: \$$ticketValue \n")
+                    }
+                } while (ticketValue == 0)
+            }
+            3 -> statistics (numberOfTicketPurchased, numberOfSeats, totalIncome, updater)
+            0 -> break
+        }
+    }
+}
+
+fun showTheTicket(l: MutableList<MutableList<String>>) {
+    println("\nCinema:")
+    print("  ")
+    for (i in 1..l[0].size) {
+        print("$i ")
+    }
+    println()
+    for(i in 0..l.lastIndex) {
+        println("${i + 1} ${l[i].joinToString(" ")}")
+    }
+}
+
+fun updateTheTicket (l: MutableList<MutableList<String>>, numberOfSeats: Int, row: Int) :
+        Int {
+    println("Enter a row number:")
+    val r = readln().toInt()-1
+    println("Enter a seat number in that row:")
+    val c = readln().toInt()-1
+    try {
+        if (l[r][c] != "B") {
+            l[r][c] = "B"
+            return if (numberOfSeats <= 60){
+                TICKET_PRICE_10
+            } else {
+                if (r+1 <= row/2) {
+                    TICKET_PRICE_10
+                }
+                else {
+                    TICKET_PRICE_8
+                }
+            }
+        } else {
+            println("That ticket has already been purchased!")
+            return 0;
+        }
+    } catch (e: IndexOutOfBoundsException) {
+        println("Wrong input!")
+        return 0;
+    }
+}
+
+fun statistics (numberOfTicketPurchased: Int, numberOfSeats: Int, totalIncome: Int, incomeUpdate: Int) =
+    println("Number of purchased tickets: $numberOfTicketPurchased\n" +
+            "Percentage: ${"%.2f".format((numberOfTicketPurchased * 100.0 / numberOfSeats))}%\n" +
+            "Current income: \$$incomeUpdate\n" +
+            "Total income: \$$totalIncome")
